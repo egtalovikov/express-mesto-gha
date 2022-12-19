@@ -4,13 +4,18 @@ const { VALIDATION_ERROR_CODE, DOCUMENT_NOT_FOUND_ERROR_CODE, DEFAULT_ERROR_CODE
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' }));
 };
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден' });
+      }
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
+    });
 };
 
 const createUser = (req, res) => {
@@ -19,7 +24,11 @@ const createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send(user))
     .catch((err) => {
-      res.status(500).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' });
+      }
+
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
     });
 };
 
@@ -35,7 +44,16 @@ const updateProfile = (req, res) => {
     },
   )
     .then((user) => res.send(user))
-    .catch(() => res.send('Данные не прошли валидацию. Либо произошло что-то совсем немыслимое'));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      }
+      if (err.name === 'CastError') {
+        return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь с указанным _id не найден' });
+      }
+
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
+    });
 };
 
 const updateAvatar = (req, res) => {
@@ -50,7 +68,16 @@ const updateAvatar = (req, res) => {
     },
   )
     .then((user) => res.send(user))
-    .catch(() => res.send('Данные не прошли валидацию. Либо произошло что-то совсем немыслимое'));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+      }
+      if (err.name === 'CastError') {
+        return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь с указанным _id не найден' });
+      }
+
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
+    });
 };
 
 module.exports = {

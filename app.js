@@ -6,7 +6,13 @@ const { PORT = 3000 } = process.env;
 
 const VALIDATION_ERROR_CODE = 400;
 const DOCUMENT_NOT_FOUND_ERROR_CODE = 404;
-const DEFAULT_ERROR_CODE = 404;
+const DEFAULT_ERROR_CODE = 500;
+
+module.exports = {
+  VALIDATION_ERROR_CODE,
+  DOCUMENT_NOT_FOUND_ERROR_CODE,
+  DEFAULT_ERROR_CODE,
+};
 
 const app = express();
 
@@ -31,9 +37,3 @@ app.use('/cards', require('./routes/cards'));
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
-
-module.exports = {
-  VALIDATION_ERROR_CODE,
-  DOCUMENT_NOT_FOUND_ERROR_CODE,
-  DEFAULT_ERROR_CODE,
-};

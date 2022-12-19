@@ -1,10 +1,11 @@
 const Card = require('../models/card');
+const { VALIDATION_ERROR_CODE, DOCUMENT_NOT_FOUND_ERROR_CODE, DEFAULT_ERROR_CODE } = require('../app');
 
 const getCards = (req, res) => {
   Card.find({})
     .populate('owner')
     .then((cards) => res.send(cards))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' }));
 };
 
 const createCard = (req, res) => {
@@ -12,13 +13,19 @@ const createCard = (req, res) => {
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send(card))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании карточки' });
+      }
+
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
+    });
 };
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => res.send(card))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Карточка с указанным _id не найдена' }));
 };
 
 const likeCard = (req, res) => {
@@ -28,7 +35,16 @@ const likeCard = (req, res) => {
     },
   }, { new: true })
     .then((card) => res.send(card))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные для постановки/снятии лайка' });
+      }
+      if (err.name === 'CastError') {
+        return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Передан несуществующий _id карточки' });
+      }
+
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
+    });
 };
 
 const dislikeCard = (req, res) => {
@@ -38,7 +54,16 @@ const dislikeCard = (req, res) => {
     },
   }, { new: true })
     .then((card) => res.send(card))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные для постановки/снятии лайка' });
+      }
+      if (err.name === 'CastError') {
+        return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Передан несуществующий _id карточки' });
+      }
+
+      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
+    });
 };
 
 module.exports = {
