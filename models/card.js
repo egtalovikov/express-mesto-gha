@@ -14,6 +14,7 @@ const cardSchema = new mongoose.Schema({
       validator: (v) => validator.isURL(v),
       message: 'Некорректный URL',
     },
+    required: true,
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
