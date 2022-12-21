@@ -13,14 +13,14 @@ const getUserById = (req, res) => {
       if (user === null) {
         return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден' });
       }
-      res.send(user);
+      return res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       }
       if (err.name === 'CastError') {
-        return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден' });
+        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден' });
       }
       return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
     });

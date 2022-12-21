@@ -28,8 +28,8 @@ const deleteCard = (req, res) => {
       if (card === null) {
         return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Передан несуществующий _id карточки' });
       }
-      res.send(card)}
-      )
+      return res.send(card);
+    })
     .catch(() => res.status(VALIDATION_ERROR_CODE).send({ message: 'Карточка с указанным _id не найдена' }));
 };
 
@@ -49,7 +49,7 @@ const likeCard = (req, res) => {
       if (card === null) {
         return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Передан несуществующий _id карточки' });
       }
-      res.send(card)
+      return res.send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -73,7 +73,7 @@ const dislikeCard = (req, res) => {
       if (card === null) {
         return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Передан несуществующий _id карточки' });
       }
-      res.send(card);
+      return res.send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

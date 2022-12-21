@@ -35,7 +35,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use((req, res) => {
-  res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: "Указан неправильный путь" });
+  res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Указан неправильный путь' });
 });
 
 app.listen(PORT, () => {
