@@ -42,14 +42,6 @@ app.use(helmet());
 
 app.use(limiter);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '639ffc92daed05d442ee4040',
-  };
-
-  next();
-});
-
 app.post('/signin', login);
 app.post('/signup', createUser);
 
