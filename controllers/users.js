@@ -45,10 +45,20 @@ const createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send(user.name, user.about, user.avatar, user.email, user._id, user.__v))
+    .then((user) => res.send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+      _id: user._id,
+      __v: user.__v,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('Переданы некорректные данные при создании пользователя'));
+      }
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с такой почтой уже зарегистрирован'));
       }
       next(err);
     });
@@ -115,12 +125,7 @@ const login = (req, res, next) => {
         })
         .end();
     })
-    .catch((err) => {
-      if (err.code === 11000) {
-        next(new ConflictError('Пользователь с такой почтой уже зарегистрирован'));
-      }
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 const getUserInfo = (req, res, next) => {
