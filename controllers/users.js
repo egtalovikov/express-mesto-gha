@@ -36,6 +36,8 @@ const createUser = (req, res) => {
     password,
   } = req.body;
 
+  console.log(req.body);
+
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
       name,
@@ -105,7 +107,7 @@ const updateAvatar = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+  return User.findOne({ email }).select('+password')
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, '1d99b5b455e4421f02bb3487371377e2663fc20312965cc095766ba38d29536a', { expiresIn: '7d' });
       res
@@ -120,6 +122,12 @@ const login = (req, res) => {
       res.status(401).send({ message: err.message });
     });
 };
+
+const getUserInfo = (req, res) => {
+  User.findById(req.user._id)
+  .then((user) => res.send(user))
+  .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' }));
+}
 
 module.exports = {
   getUsers,
