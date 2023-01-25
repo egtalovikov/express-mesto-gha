@@ -5,6 +5,7 @@ const NotFoundError = require('../errors/not-found-err');
 const ValidationError = require('../errors/validation-err');
 const ConflictError = require('../errors/conflict-err');
 const AuthError = require('../errors/auth-err');
+
 const { JWT_SECRET = 'dev-key' } = process.env;
 
 const getUsers = (req, res, next) => {
