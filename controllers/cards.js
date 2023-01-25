@@ -1,43 +1,40 @@
 const Card = require('../models/card');
-const { VALIDATION_ERROR_CODE, DOCUMENT_NOT_FOUND_ERROR_CODE, DEFAULT_ERROR_CODE } = require('../app');
+const NotFoundError = require('../errors/not-found-err');
+const ValidationError = require('../errors/validation-err');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .populate('owner')
     .then((cards) => res.send(cards))
-    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' }));
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании карточки' });
+        next(new ValidationError('Переданы некорректные данные при создании карточки'));
       }
-
-      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
+      next(err);
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Передан несуществующий _id карточки'))
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.message === 'NotValidId') {
-        return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Передан несуществующий _id карточки' });
-      }
       if (err.name === 'CastError') {
-        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Карточка с  указанным _id не найдена' });
+        next(new ValidationError('Карточка с  указанным _id не найдена'));
       }
-      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
+      next(err);
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     {
@@ -49,43 +46,35 @@ const likeCard = (req, res) => {
       new: true,
     },
   )
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Передан несуществующий _id карточки'))
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.message === 'NotValidId') {
-        return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Передан несуществующий _id карточки' });
-      }
       if (err.name === 'ValidationError') {
-        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные для постановки/снятии лайка' });
+        next(new ValidationError('Переданы некорректные данные для постановки/снятии лайка'));
       }
       if (err.name === 'CastError') {
-        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Передан несуществующий _id карточки' });
+        next(new ValidationError('Передан несуществующий _id карточки'));
       }
-
-      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
+      next(err);
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, {
     $pull: {
       likes: req.user._id,
     },
   }, { new: true })
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Передан несуществующий _id карточки'))
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.message === 'NotValidId') {
-        return res.status(DOCUMENT_NOT_FOUND_ERROR_CODE).send({ message: 'Передан несуществующий _id карточки' });
-      }
       if (err.name === 'ValidationError') {
-        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные для постановки/снятии лайка' });
+        next(new ValidationError('Переданы некорректные данные для постановки/снятии лайка'));
       }
       if (err.name === 'CastError') {
-        return res.status(VALIDATION_ERROR_CODE).send({ message: 'Передан несуществующий _id карточки' });
+        next(new ValidationError('Передан несуществующий _id карточки'));
       }
-
-      return res.status(DEFAULT_ERROR_CODE).send({ message: 'Ошибка по умолчанию' });
+      next(err);
     });
 };
 
