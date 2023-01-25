@@ -4,6 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const ValidationError = require('../errors/validation-err');
 const ConflictError = require('../errors/conflict-err');
+const AuthError = require('../errors/auth-err');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -51,7 +52,7 @@ const createUser = (req, res, next) => {
       avatar: user.avatar,
       email: user.email,
       _id: user._id,
-      __v: user.__v,
+      __v: user.__v,  //eslint-disable-line
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -116,6 +117,9 @@ const login = (req, res, next) => {
 
   return User.findOne({ email }).select('+password')
     .then((user) => {
+      if (!user) {
+        throw new AuthError('Неправильная почта или пароль');
+      }
       const token = jwt.sign({ _id: user._id }, '1d99b5b455e4421f02bb3487371377e2663fc20312965cc095766ba38d29536a', { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
@@ -125,7 +129,7 @@ const login = (req, res, next) => {
         })
         .end();
     })
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 const getUserInfo = (req, res, next) => {
