@@ -55,7 +55,6 @@ const createUser = (req, res, next) => {
       __v: user.__v,  //eslint-disable-line
     }))
     .catch((err) => {
-      console.log(err);
       if (err.name === 'ValidationError') {
         next(new ValidationError('Переданы некорректные данные при создании пользователя'));
       }
