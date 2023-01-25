@@ -11,10 +11,6 @@ const auth = require('./middlewares/auth');
 const handleErrors = require('./middlewares/errors');
 const NotFoundError = require('./errors/not-found-err');
 
-const { JWT_SECRET = 'dev-key' } = process.env;
-
-module.exports = { JWT_SECRET };
-
 const { PORT = 3000 } = process.env;
 
 const limiter = rateLimit({
