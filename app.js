@@ -8,7 +8,12 @@ const { celebrate, Joi, errors } = require('celebrate');
 
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const handleErrors = require('./middlewares/errors');
 const NotFoundError = require('./errors/not-found-err');
+
+const { JWT_SECRET = 'dev-key' } = process.env;
+
+module.exports = { JWT_SECRET };
 
 const { PORT = 3000 } = process.env;
 
@@ -61,18 +66,7 @@ app.use((req, res, next) => {
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  next();
-});
+app.use(handleErrors);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`); // eslint-disable-line

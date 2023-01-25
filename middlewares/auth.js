@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const AuthError = require('../errors/auth-err');
+const JWT_SECRET = require('../app');
 
 const extractBearerToken = (header) => header.replace('Bearer ', '');
 
@@ -12,7 +13,7 @@ module.exports = (req, res, next) => {
     }
 
     const token = extractBearerToken(authorization);
-    const payload = jwt.verify(token, '1d99b5b455e4421f02bb3487371377e2663fc20312965cc095766ba38d29536a');
+    const payload = jwt.verify(token, JWT_SECRET);
 
     req.user = payload;
   } catch (err) {

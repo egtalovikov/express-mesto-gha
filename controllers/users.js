@@ -5,6 +5,7 @@ const NotFoundError = require('../errors/not-found-err');
 const ValidationError = require('../errors/validation-err');
 const ConflictError = require('../errors/conflict-err');
 const AuthError = require('../errors/auth-err');
+const JWT_SECRET = require('../app');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -120,7 +121,7 @@ const login = (req, res, next) => {
       if (!user) {
         throw new AuthError('Неправильная почта или пароль');
       }
-      const token = jwt.sign({ _id: user._id }, '1d99b5b455e4421f02bb3487371377e2663fc20312965cc095766ba38d29536a', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       res.send({ token, name: user.name, email: user.email });
     })
     .catch(next);
