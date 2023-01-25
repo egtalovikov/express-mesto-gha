@@ -122,13 +122,7 @@ const login = (req, res, next) => {
         throw new AuthError('Неправильная почта или пароль');
       }
       const token = jwt.sign({ _id: user._id }, '1d99b5b455e4421f02bb3487371377e2663fc20312965cc095766ba38d29536a', { expiresIn: '7d' });
-      res
-        .cookie('jwt', token, {
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true,
-          sameSite: true,
-        })
-        .send(user);
+      res.send({ token, name: user.name, email: user.email });
     })
     .catch(next);
 };
